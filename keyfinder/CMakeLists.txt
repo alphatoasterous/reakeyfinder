@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.15)
+project(keyfinder LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+find_package(FFTW3 REQUIRED)
+
+file(GLOB KEYFINDER_SOURCES CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+)
+file(GLOB KEYFINDER_HEADERS CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
+)
+
+add_library(keyfinder STATIC ${KEYFINDER_SOURCES} ${KEYFINDER_HEADERS})
+target_include_directories(keyfinder PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(keyfinder PUBLIC FFTW3::fftw3)
+
+
