@@ -1,6 +1,8 @@
 #include "my_plugin.h"
 #include "keyfinder/keyfinder.h"
 #include "reaper_vararg.hpp"
+#include <iostream>
+#include <sstream>
 #include <gsl/gsl>
 
 #define STRINGIZE_DEF(x) #x
@@ -10,7 +12,7 @@
 // register main function on timer
 // true or false
 #define API_ID MYAPI
-#define RUN_ON_TIMER true
+#define RUN_ON_TIMER false 
 
 // confine my plugin to namespace
 namespace PROJECT_NAME
@@ -27,13 +29,50 @@ custom_action_register_t action = {0, command_name, action_name, nullptr};
 // hInstance is declared in header file my_plugin.hpp
 // defined here
 REAPER_PLUGIN_HINSTANCE hInstance{nullptr}; // used for dialogs, if any
+    
+void printBufferValue(double value) {
+    std::ostringstream oss;
+    oss << value;
+
+    std::string str = oss.str();
+    ShowConsoleMsg(str.c_str()); 
+}
 
 // the main function of my plugin
 // gets called via callback or timer
 void MainFunctionOfMyPlugin()
 {
-    KeyFinder::KeyFinder k;
-    ShowConsoleMsg("Hello blyat\n");
+    MediaItem* current_item = GetSelectedMediaItem(0, 0);
+    MediaItem_Take* current_take = GetMediaItemTake(current_item, 0);
+    AudioAccessor* audio_accessor = CreateTakeAudioAccessor(current_take);
+    double start_time = GetAudioAccessorStartTime(audio_accessor);
+    double end_time = GetAudioAccessorEndTime(audio_accessor);
+    int length = end_time - start_time + 1;
+    int sample_rate = 48000;
+    int number_of_channels = 2;
+    int buffer_size = length * sample_rate * number_of_channels;
+    double* buffer = new double[buffer_size];
+    int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, number_of_channels, 0.0, length * sample_rate, buffer);
+    if (samples_created == 1){
+        for (int i = 0; i<buffer_size; ++i){
+            printBufferValue(buffer[i]);
+            ShowConsoleMsg("\n");
+        }
+    } else if (samples_created == 0){
+
+        ShowConsoleMsg("А где звук ёпта\n");
+    } else if (samples_created == -1){
+
+        ShowConsoleMsg("пиздец\n");
+    } else ShowConsoleMsg("уберпиздец\n");
+
+    
+    //ShowConsoleMsg("Hello blyat\n");
+
+
+
+    DestroyAudioAccessor(audio_accessor);
+    delete[] buffer;
 }
 
 // c++11 trailing return type syntax
