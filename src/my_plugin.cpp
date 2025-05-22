@@ -1,8 +1,8 @@
 #include "my_plugin.h"
 #include "keyfinder/keyfinder.h"
 #include "reaper_vararg.hpp"
-#include <iostream>
-#include <sstream>
+#include "reakeyfinder_dbgtools.h"
+
 #include <gsl/gsl>
 
 #define STRINGIZE_DEF(x) #x
@@ -29,37 +29,30 @@ custom_action_register_t action = {0, command_name, action_name, nullptr};
 // hInstance is declared in header file my_plugin.hpp
 // defined here
 REAPER_PLUGIN_HINSTANCE hInstance{nullptr}; // used for dialogs, if any
-    
-void printBufferValue(double value) {
-    std::ostringstream oss;
-    oss << value;
-
-    std::string str = oss.str();
-    ShowConsoleMsg(str.c_str()); 
-}
 
 // the main function of my plugin
 // gets called via callback or timer
 void MainFunctionOfMyPlugin()
 {
     MediaItem* current_item = GetSelectedMediaItem(0, 0);
+    if (!(IsMediaItemSelected(current_item))) {
+        ShowConsoleMsg("Айтем мне выбери блядь\n");
+        return;
+    }
     MediaItem_Take* current_take = GetMediaItemTake(current_item, 0);
     AudioAccessor* audio_accessor = CreateTakeAudioAccessor(current_take);
     double start_time = GetAudioAccessorStartTime(audio_accessor);
     double end_time = GetAudioAccessorEndTime(audio_accessor);
-    int length = end_time - start_time + 1;
+    int length = end_time - start_time;
     int sample_rate = 48000;
     int number_of_channels = 2;
-    int buffer_size = length * sample_rate * number_of_channels;
-    double* buffer = new double[buffer_size];
-    int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, number_of_channels, 0.0, length * sample_rate, buffer);
+    int sample_buffer_size = (length * sample_rate * number_of_channels)+1;
+    double* sample_buffer = new double[sample_buffer_size];
+    int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, number_of_channels, 0.0, length * sample_rate, sample_buffer);
     if (samples_created == 1){
-        for (int i = 0; i<buffer_size; ++i){
-            printBufferValue(buffer[i]);
-            ShowConsoleMsg("\n");
-        }
+        ShowConsoleMsg("Ну вот тебе буфер, карочи: ");
+        ShowConsoleMsg(StringizeSampleBuffer(sample_buffer, sample_buffer_size).c_str());
     } else if (samples_created == 0){
-
         ShowConsoleMsg("А где звук ёпта\n");
     } else if (samples_created == -1){
 
@@ -72,7 +65,7 @@ void MainFunctionOfMyPlugin()
 
 
     DestroyAudioAccessor(audio_accessor);
-    delete[] buffer;
+    delete[] sample_buffer;
 }
 
 // c++11 trailing return type syntax
