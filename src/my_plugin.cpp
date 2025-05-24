@@ -1,5 +1,6 @@
 #include "my_plugin.h"
 #include "keyfinder/keyfinder.h"
+#include <keyfinder/audiodata.h>
 #include "reaper_vararg.hpp"
 #include "reakeyfinder_dbgtools.h"
 
@@ -34,6 +35,8 @@ REAPER_PLUGIN_HINSTANCE hInstance{nullptr}; // used for dialogs, if any
 // gets called via callback or timer
 void MainFunctionOfMyPlugin()
 {
+
+    // Access audio from a current item's take #0. Write it to a sample_buffer.
     MediaItem* current_item = GetSelectedMediaItem(0, 0);
     if (!(IsMediaItemSelected(current_item))) {
         ShowConsoleMsg("Айтем мне выбери блядь\n");
@@ -48,24 +51,128 @@ void MainFunctionOfMyPlugin()
     int number_of_channels = 2;
     int sample_buffer_size = (length * sample_rate * number_of_channels)+1;
     double* sample_buffer = new double[sample_buffer_size];
-    int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, number_of_channels, 0.0, length * sample_rate, sample_buffer);
+    int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, number_of_channels, 0.0, length * sample_rate, sample_buffer); // 0.0 - ???
+    
+    
+    // Verify that samples are indeed created.
     if (samples_created == 1){
-        ShowConsoleMsg("Ну вот тебе буфер, карочи: ");
-        ShowConsoleMsg(StringizeSampleBuffer(sample_buffer, sample_buffer_size).c_str());
+        // ShowConsoleMsg("Ну вот тебе буфер, карочи: ");
+        // ShowConsoleMsg(StringizeSampleBuffer(sample_buffer, sample_buffer_size).c_str());
     } else if (samples_created == 0){
         ShowConsoleMsg("А где звук ёпта\n");
+        return;
     } else if (samples_created == -1){
-
-        ShowConsoleMsg("пиздец\n");
-    } else ShowConsoleMsg("уберпиздец\n");
+        ShowConsoleMsg("пиздец\n"); return;
+    } else ShowConsoleMsg("уберпиздец\n"); return;
 
     
+    // Prepare an AudioData object and move every sample into it.
+    KeyFinder::AudioData a;
+    a.setFrameRate(sample_rate);
+    a.setChannels(number_of_channels);
+    a.addToSampleCount(sample_buffer_size);
+
+    for (int i = 0; i < sample_buffer_size; ++i) {
+        a.setSample(i, sample_buffer[i]);
+    }
+
+
+    // Since samples are now set in keyfinder's AudioData object, we are destroying an AudioAccessor and sample_buffer
+    DestroyAudioAccessor(audio_accessor);
+    delete[] sample_buffer;
+
+
+    // Start analyzing the samples.
+    KeyFinder::KeyFinder k;
+    KeyFinder::key_t key =  k.keyOfAudio(a);
+
+
+    // Print out what key it found. Basically a copy-pasta from libkeyfinder example.
+    // TODO: Make something more elaborated.
+    ShowConsoleMsg("\nAnd your key is: ");
+    switch(key) {
+        case KeyFinder::A_MAJOR:
+            ShowConsoleMsg("A major\n");
+            break;
+        case KeyFinder::A_MINOR:
+            ShowConsoleMsg("A minor\n");
+            break;
+        case KeyFinder::B_FLAT_MAJOR:
+            ShowConsoleMsg("B flat major\n");
+            break;
+        case KeyFinder::B_FLAT_MINOR:
+            ShowConsoleMsg("B flat minor\n");
+            break;
+        case KeyFinder::B_MAJOR:
+            ShowConsoleMsg("B major\n");
+            break;
+        case KeyFinder::B_MINOR:
+            ShowConsoleMsg("B minor\n");
+            break;
+        case KeyFinder::C_MAJOR:
+            ShowConsoleMsg("C major\n");
+            break;
+        case KeyFinder::C_MINOR:
+            ShowConsoleMsg("C minor\n");
+            break;
+        case KeyFinder::D_FLAT_MAJOR:
+            ShowConsoleMsg("D flat major\n");
+            break;
+        case KeyFinder::D_FLAT_MINOR:
+            ShowConsoleMsg("D flat major\n");
+            break;
+        case KeyFinder::D_MAJOR:
+            ShowConsoleMsg("D major\n");
+            break;
+        case KeyFinder::D_MINOR:
+            ShowConsoleMsg("D minor\n");
+            break;
+        case KeyFinder::E_FLAT_MAJOR:
+            ShowConsoleMsg("E flat major\n");
+            break;
+        case KeyFinder::E_FLAT_MINOR:
+            ShowConsoleMsg("E flat minor\n");
+            break;
+        case KeyFinder::E_MAJOR:
+            ShowConsoleMsg("E major\n");
+            break;
+        case KeyFinder::E_MINOR:
+            ShowConsoleMsg("E minor\n");
+            break;
+        case KeyFinder::F_MAJOR:
+            ShowConsoleMsg("G major\n");
+            break;
+        case KeyFinder::F_MINOR:
+            ShowConsoleMsg("G minor\n");
+            break;
+        case KeyFinder::G_FLAT_MAJOR:
+            ShowConsoleMsg("G flat major\n");
+            break;
+        case KeyFinder::G_FLAT_MINOR:
+            ShowConsoleMsg("G flat minor\n");
+            break;
+        case KeyFinder::G_MAJOR:
+            ShowConsoleMsg("G major\n");
+            break;
+        case KeyFinder::G_MINOR:
+            ShowConsoleMsg("G minor\n");
+            break;
+        case KeyFinder::A_FLAT_MAJOR:
+            ShowConsoleMsg("A flat major\n");
+            break;
+        case KeyFinder::A_FLAT_MINOR:
+            ShowConsoleMsg("A flat minor\n");
+            break;
+        case KeyFinder::SILENCE:
+            ShowConsoleMsg("Silence\n");
+            break;
+    }
+
     //ShowConsoleMsg("Hello blyat\n");
 
 
 
-    DestroyAudioAccessor(audio_accessor);
-    delete[] sample_buffer;
+    
 }
 
 // c++11 trailing return type syntax
