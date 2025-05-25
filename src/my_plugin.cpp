@@ -56,14 +56,14 @@ void MainFunctionOfMyPlugin()
     
     // Verify that samples are indeed created.
     if (samples_created == 1){
-        // ShowConsoleMsg("Ну вот тебе буфер, карочи: ");
-        // ShowConsoleMsg(StringizeSampleBuffer(sample_buffer, sample_buffer_size).c_str());
+        //ShowConsoleMsg("Ну вот тебе буфер, карочи: ");
+        //ShowConsoleMsg(StringizeSampleBuffer(sample_buffer, sample_buffer_size).c_str());
     } else if (samples_created == 0){
         ShowConsoleMsg("А где звук ёпта\n");
         return;
     } else if (samples_created == -1){
         ShowConsoleMsg("пиздец\n"); return;
-    } else ShowConsoleMsg("уберпиздец\n"); return;
+    } else { ShowConsoleMsg("уберпиздец\n"); return;}
 
     
     // Prepare an AudioData object and move every sample into it.
@@ -84,7 +84,7 @@ void MainFunctionOfMyPlugin()
 
     // Start analyzing the samples.
     KeyFinder::KeyFinder k;
-    KeyFinder::key_t key =  k.keyOfAudio(a);
+    KeyFinder::key_t key = k.keyOfAudio(a);
 
 
     // Print out what key it found. Basically a copy-pasta from libkeyfinder example.
@@ -168,11 +168,6 @@ void MainFunctionOfMyPlugin()
             break;
     }
 
-    //ShowConsoleMsg("Hello blyat\n");
-
-
-
-    
 }
 
 // c++11 trailing return type syntax
