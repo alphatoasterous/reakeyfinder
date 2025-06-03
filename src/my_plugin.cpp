@@ -1,4 +1,5 @@
 #include "my_plugin.h"
+#include "reaper_plugin_functions.h"
 #include "reaper_vararg.hpp"
 
 #include "integrations/integrations.hpp"
@@ -66,93 +67,10 @@ void MainFunctionOfMyPlugin()
         ShowConsoleMsg("пиздец\n"); return;
     } else { ShowConsoleMsg("уберпиздец\n"); return;}
 
-        // Prepare an AudioData object and move every sample into it.
-    KeyFinder::key_t key = GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels));
-    
+    ShowConsoleMsg(GetKeyInfo(GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels))));
+
     DestroyAudioAccessor(audio_accessor);
     delete[] samples;
-
-    // Print out what key it found. Basically a copy-pasta from libkeyfinder example.
-    // TODO: Make something more elaborated.
-    ShowConsoleMsg("\nAnd your key is: ");
-    switch(key) {
-        case KeyFinder::A_MAJOR:
-            ShowConsoleMsg("A major\n");
-            break;
-        case KeyFinder::A_MINOR:
-            ShowConsoleMsg("A minor\n");
-            break;
-        case KeyFinder::B_FLAT_MAJOR:
-            ShowConsoleMsg("B flat major\n");
-            break;
-        case KeyFinder::B_FLAT_MINOR:
-            ShowConsoleMsg("B flat minor\n");
-            break;
-        case KeyFinder::B_MAJOR:
-            ShowConsoleMsg("B major\n");
-            break;
-        case KeyFinder::B_MINOR:
-            ShowConsoleMsg("B minor\n");
-            break;
-        case KeyFinder::C_MAJOR:
-            ShowConsoleMsg("C major\n");
-            break;
-        case KeyFinder::C_MINOR:
-            ShowConsoleMsg("C minor\n");
-            break;
-        case KeyFinder::D_FLAT_MAJOR:
-            ShowConsoleMsg("D flat major\n");
-            break;
-        case KeyFinder::D_FLAT_MINOR:
-            ShowConsoleMsg("D flat major\n");
-            break;
-        case KeyFinder::D_MAJOR:
-            ShowConsoleMsg("D major\n");
-            break;
-        case KeyFinder::D_MINOR:
-            ShowConsoleMsg("D minor\n");
-            break;
-        case KeyFinder::E_FLAT_MAJOR:
-            ShowConsoleMsg("E flat major\n");
-            break;
-        case KeyFinder::E_FLAT_MINOR:
-            ShowConsoleMsg("E flat minor\n");
-            break;
-        case KeyFinder::E_MAJOR:
-            ShowConsoleMsg("E major\n");
-            break;
-        case KeyFinder::E_MINOR:
-            ShowConsoleMsg("E minor\n");
-            break;
-        case KeyFinder::F_MAJOR:
-            ShowConsoleMsg("G major\n");
-            break;
-        case KeyFinder::F_MINOR:
-            ShowConsoleMsg("G minor\n");
-            break;
-        case KeyFinder::G_FLAT_MAJOR:
-            ShowConsoleMsg("G flat major\n");
-            break;
-        case KeyFinder::G_FLAT_MINOR:
-            ShowConsoleMsg("G flat minor\n");
-            break;
-        case KeyFinder::G_MAJOR:
-            ShowConsoleMsg("G major\n");
-            break;
-        case KeyFinder::G_MINOR:
-            ShowConsoleMsg("G minor\n");
-            break;
-        case KeyFinder::A_FLAT_MAJOR:
-            ShowConsoleMsg("A flat major\n");
-            break;
-        case KeyFinder::A_FLAT_MINOR:
-            ShowConsoleMsg("A flat minor\n");
-            break;
-        case KeyFinder::SILENCE:
-            ShowConsoleMsg("Silence\n");
-            break;
-    }
-
 }
 
 // c++11 trailing return type syntax
