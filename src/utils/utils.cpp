@@ -2,6 +2,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <string>
+
 
 namespace PROJECT_NAME {
     std::string StringizeSampleBuffer(double* buf, int size) {
@@ -14,5 +16,14 @@ namespace PROJECT_NAME {
         oss << "]" << std::endl;
         return oss.str();
     }
-    
+    std::string FloatToString(float value, int precision) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(precision) << value;
+        return oss.str();
+    }
+    std::string FloatToString(double value, int precision) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(precision) << value;
+        return oss.str();
+    }
 }

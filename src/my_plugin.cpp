@@ -1,12 +1,15 @@
 #include "my_plugin.h"
+#include "reaper_plugin.h"
 #include "reaper_plugin_functions.h"
 #include "reaper_vararg.hpp"
 
 #include "integrations/integrations.hpp"
 #include "utils/utils.hpp"
 
+#include <cstdio>
 #include <gsl/gsl>
 #include <keyfinder/constants.h>
+#include <MiniBpm.h>
 
 #define STRINGIZE_DEF(x) #x
 #define STRINGIZE(x) STRINGIZE_DEF(x)
@@ -46,12 +49,13 @@ void MainFunctionOfMyPlugin()
     }
     MediaItem_Take* current_take = GetMediaItemTake(current_item, 0);
     AudioAccessor* audio_accessor = CreateTakeAudioAccessor(current_take);
+    
     double start_time = GetAudioAccessorStartTime(audio_accessor);
     double end_time = GetAudioAccessorEndTime(audio_accessor);
     int length = end_time - start_time;
     int sample_rate = 48000;
     int numchannels = 2;
-    size_t samples_size = (length * sample_rate * numchannels)+1;
+    size_t samples_size = (length * sample_rate * numchannels);
     double* samples = new double[samples_size];
     int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, numchannels, 0.0, length * sample_rate, samples); // 0.0 - ???
     
@@ -67,8 +71,35 @@ void MainFunctionOfMyPlugin()
         ShowConsoleMsg("пиздец\n"); return;
     } else { ShowConsoleMsg("уберпиздец\n"); return;}
 
+    // Get project that current_item resides
+
+    
+
+    // Get project bpm
+    double project_bpm = 0.0f;
+    GetProjectTimeSignature2(GetItemProjectContext(current_item), &project_bpm, nullptr);
+    ShowConsoleMsg("Project BPM: ");
+    ShowConsoleMsg(FloatToString(project_bpm).c_str());
+
+
+    ShowConsoleMsg("\n\n========================\n\n");
+
+    // Get item name
+    ShowConsoleMsg("Current take: ");
+    ShowConsoleMsg(GetTakeName(current_take));
+    ShowConsoleMsg("\n\n");
+
+    // Get key
     ShowConsoleMsg(GetKeyInfo(GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels))));
 
+    // Get bpm
+    double bpm_left = breakfastquay::MiniBPM(sample_rate).estimateTempoOfSamples(samples, samples_size);
+    // double bpm_right = breakfastquay::MiniBPM(sample_rate).estimateTempoOfSamples(right_channel_samples, samples_size/2);
+
+    ShowConsoleMsg("\nBPM: ");
+    ShowConsoleMsg(FloatToString(bpm_left, 3).c_str());
+    //std::printf("\nBPM (Rch): %6.3f", bpm_right);
+    
     DestroyAudioAccessor(audio_accessor);
     delete[] samples;
 }
