@@ -13,3 +13,4 @@ CMakeUserPresets.json
 .vscode/
 build/
 third_party/
+.cache/
