@@ -1,10 +1,11 @@
 #include "my_plugin.h"
-#include "keyfinder/keyfinder.h"
-#include <keyfinder/audiodata.h>
 #include "reaper_vararg.hpp"
-#include "reakeyfinder_dbgtools.h"
+
+#include "integrations/integrations.hpp"
+#include "utils/utils.hpp"
 
 #include <gsl/gsl>
+#include <keyfinder/constants.h>
 
 #define STRINGIZE_DEF(x) #x
 #define STRINGIZE(x) STRINGIZE_DEF(x)
@@ -48,10 +49,10 @@ void MainFunctionOfMyPlugin()
     double end_time = GetAudioAccessorEndTime(audio_accessor);
     int length = end_time - start_time;
     int sample_rate = 48000;
-    int number_of_channels = 2;
-    int sample_buffer_size = (length * sample_rate * number_of_channels)+1;
-    double* sample_buffer = new double[sample_buffer_size];
-    int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, number_of_channels, 0.0, length * sample_rate, sample_buffer); // 0.0 - ???
+    int numchannels = 2;
+    size_t samples_size = (length * sample_rate * numchannels)+1;
+    double* samples = new double[samples_size];
+    int samples_created = GetAudioAccessorSamples(audio_accessor, sample_rate, numchannels, 0.0, length * sample_rate, samples); // 0.0 - ???
     
     
     // Verify that samples are indeed created.
@@ -65,28 +66,9 @@ void MainFunctionOfMyPlugin()
         ShowConsoleMsg("пиздец\n"); return;
     } else { ShowConsoleMsg("уберпиздец\n"); return;}
 
+        // Prepare an AudioData object and move every sample into it.
+    KeyFinder::key_t key = GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels));
     
-    // Prepare an AudioData object and move every sample into it.
-    KeyFinder::AudioData a;
-    a.setFrameRate(sample_rate);
-    a.setChannels(number_of_channels);
-    a.addToSampleCount(sample_buffer_size);
-
-    for (int i = 0; i < sample_buffer_size; ++i) {
-        a.setSample(i, sample_buffer[i]);
-    }
-
-
-    // Since samples are now set in keyfinder's AudioData object, we are destroying an AudioAccessor and sample_buffer
-    DestroyAudioAccessor(audio_accessor);
-    delete[] sample_buffer;
-
-
-    // Start analyzing the samples.
-    KeyFinder::KeyFinder k;
-    KeyFinder::key_t key = k.keyOfAudio(a);
-
-
     // Print out what key it found. Basically a copy-pasta from libkeyfinder example.
     // TODO: Make something more elaborated.
     ShowConsoleMsg("\nAnd your key is: ");
