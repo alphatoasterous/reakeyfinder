@@ -4,8 +4,6 @@
 
 #include <reaper_plugin_functions.h>
 
-#include "reakeyfinder_dbgtools.h"
-
 #include "my_plugin.h"
 
 extern "C"
