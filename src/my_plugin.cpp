@@ -69,6 +69,9 @@ void MainFunctionOfMyPlugin()
         // Prepare an AudioData object and move every sample into it.
     KeyFinder::key_t key = GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels));
     
+    DestroyAudioAccessor(audio_accessor);
+    delete[] samples;
+
     // Print out what key it found. Basically a copy-pasta from libkeyfinder example.
     // TODO: Make something more elaborated.
     ShowConsoleMsg("\nAnd your key is: ");
