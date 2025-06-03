@@ -124,7 +124,8 @@ endif()
 add_library(${PROJECT_NAME} SHARED keyfinder)
 add_subdirectory(keyfinder)
 add_subdirectory(src)
-target_link_libraries(${PROJECT_NAME} PRIVATE reaper-sdk keyfinder)
+add_subdirectory(minibpm)
+target_link_libraries(${PROJECT_NAME} PRIVATE reaper-sdk keyfinder minibpm)
 
 
 configure_file(
