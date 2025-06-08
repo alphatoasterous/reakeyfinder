@@ -1,8 +1,6 @@
 #pragma once
 
 #include "config.h"
-#include "utils/utils.hpp"
-#include "integrations/integrations.hpp"
 
 #include <WDL/wdltypes.h> // might be unnecessary in future
 
