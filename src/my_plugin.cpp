@@ -181,12 +181,11 @@ void ReaKeyfinder()
 
         // Save analysis reports and necessary metadata into JSON
         js = {
-            {"take_name", GetTakeName(current_take)},
             {"bpm", bpm},
-            {"key", std::string(GetKeyString(key)) + "(" + std::string(KeyFinder::GetCamelotString(key))+ ")"},
-            {"key_relative", std::string(GetKeyString(compatible_keys.relative)) + "(" + std::string(KeyFinder::GetCamelotString(compatible_keys.relative))+ ")"},
-            {"key_quart", std::string(GetKeyString(compatible_keys.quart)) + "(" + std::string(KeyFinder::GetCamelotString(compatible_keys.quart))+ ")"},
-            {"key_quint", std::string(GetKeyString(compatible_keys.quint)) + "(" + std::string(KeyFinder::GetCamelotString(compatible_keys.quint)) + ")"},
+            {"key", std::string(GetKeyString(key)) + " (" + std::string(KeyFinder::GetCamelotString(key))+ ")"},
+            {"key_relative", std::string(GetKeyString(compatible_keys.relative)) + " (" + std::string(KeyFinder::GetCamelotString(compatible_keys.relative))+ ")"},
+            {"key_quart", std::string(GetKeyString(compatible_keys.quart)) + " (" + std::string(KeyFinder::GetCamelotString(compatible_keys.quart))+ ")"},
+            {"key_quint", std::string(GetKeyString(compatible_keys.quint)) + " (" + std::string(KeyFinder::GetCamelotString(compatible_keys.quint)) + ")"},
 
             {"take_info", 
                 { 
