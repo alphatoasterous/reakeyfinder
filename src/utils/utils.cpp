@@ -1,8 +1,8 @@
 #include "utils.hpp"
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <string>
 
 
 namespace PROJECT_NAME {
@@ -25,5 +25,8 @@ namespace PROJECT_NAME {
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(precision) << value;
         return oss.str();
+    }
+    bool isStringNotEmpty(const char* input) {
+        return input != nullptr && std::strlen(input) > 0;
     }
 }

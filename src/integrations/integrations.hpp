@@ -14,7 +14,7 @@ namespace KeyFinder {
 
     // Get pitch class from key
     int GetPitchClass(key_t key);
-
+    
     const char* GetKeyString(key_t key);
     const char* GetCamelotString(key_t key);
     const char* GetKeyInfo(key_t key);
@@ -30,5 +30,6 @@ namespace PROJECT_NAME {
     extern "C" {
         KeyFinder::AudioData PrepareAudioData(double* samples, size_t samples_size, int sample_rate, int channels);
         KeyFinder::key_t GetKeyOfAudio(KeyFinder::AudioData audio_data);
+        std::string BuildInfoString(double project_bpm, const char* take_name, key_t key, double bpm, double time, int float_precision);
     }
 }

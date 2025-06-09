@@ -5,6 +5,7 @@
 
 #include "integrations/integrations.hpp"
 #include "utils/utils.hpp"
+#include "json.hpp"
 
 #include <cstdio>
 #include <gsl/gsl>
@@ -44,6 +45,8 @@ void ReaKeyfinder()
 
     TimePoint seq_start = Clock::now();
 
+    
+
     // Access audio from a current item's take #0. Write it to a sample_buffer.
     MediaItem* current_item = GetSelectedMediaItem(0, 0);
     if (!(IsMediaItemSelected(current_item))) {
@@ -52,6 +55,26 @@ void ReaKeyfinder()
     }
     MediaItem_Take* current_take = GetMediaItemTake(current_item, 0);
     AudioAccessor* audio_accessor = CreateTakeAudioAccessor(current_take);
+    
+    char* item_metadata = new char[65536];
+    bool metadata_empty = false;
+    nlohmann::json js;
+    if (GetSetMediaItemInfo_String(current_item, "P_EXT:reakeyfinder", item_metadata, false))
+    {
+        if (isStringNotEmpty(item_metadata)) {
+            try {
+                nlohmann::json js = nlohmann::json::parse(item_metadata);
+                // Successfully parsed
+            } catch (const nlohmann::json::parse_error&) {
+                // Parsing failed
+                metadata_empty = true;
+            }
+        }
+    }
+    if (metadata_empty) {
+        ShowConsoleMsg("Metadata is empty\n");
+    }
+    
     
     double start_time = GetAudioAccessorStartTime(audio_accessor);
     double end_time = GetAudioAccessorEndTime(audio_accessor);
@@ -75,19 +98,9 @@ void ReaKeyfinder()
     } else { ShowConsoleMsg("уберпиздец\n"); return;}
 
     
-
     // Get project bpm
     double project_bpm = 0.0f;
     GetProjectTimeSignature2(GetItemProjectContext(current_item), &project_bpm, nullptr);
-    ShowConsoleMsg("Project BPM: ");
-    ShowConsoleMsg(FloatToString(project_bpm).c_str());
-
-    ShowConsoleMsg("\n\n========================\n\n");
-
-    // Get item name
-    ShowConsoleMsg("Current take: ");
-    ShowConsoleMsg(GetTakeName(current_take));
-    ShowConsoleMsg("\n\n");
 
     // Get key
     KeyFinder::key_t key;
@@ -96,29 +109,25 @@ void ReaKeyfinder()
     });
     
     // Get bpm
-    double bpm_left;
+    double bpm;
     std::thread bpm_thread([&]() {
-        bpm_left = breakfastquay::MiniBPM(sample_rate).estimateTempoOfSamples(samples, samples_size);
+        bpm = breakfastquay::MiniBPM(sample_rate).estimateTempoOfSamples(samples, samples_size);
     });
 
     bpm_thread.join();
     key_thread.join();
     
-    // double bpm_left = breakfastquay::MiniBPM(sample_rate).estimateTempoOfSamples(samples, samples_size);
-    
-    ShowConsoleMsg(GetKeyInfo(key));
-    ShowConsoleMsg("\nBPM: ");
-    ShowConsoleMsg(FloatToString(bpm_left, 3).c_str());
-    //std::printf("\nBPM (Rch): %6.3f", bpm_right);
-    
+    // Get elapsed time
     TimePoint seq_end = Clock::now();
     double seq_time = std::chrono::duration<double, std::milli>(seq_end - seq_start).count();
 
-    ShowConsoleMsg("\n\nTime elapsed(ms): ");
-    ShowConsoleMsg(FloatToString(seq_time).c_str());
-    ShowConsoleMsg("\n");
+    // Show console output
+    ShowConsoleMsg(BuildInfoString(project_bpm, GetTakeName(current_take), key, bpm, seq_time, 3).c_str());
+
+    // Free allocated stuff
     DestroyAudioAccessor(audio_accessor);
     delete[] samples;
+    delete[] item_metadata;
 }
 
 // this gets called when my plugin action is run (e.g. from action list)

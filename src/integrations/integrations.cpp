@@ -2,6 +2,7 @@
 #include "keyfinder/keyfinder.h"
 #include <keyfinder/constants.h>
 #include <map>
+#include <iomanip>
 
 namespace KeyFinder {
     bool is_major(key_t key) {
@@ -132,6 +133,7 @@ namespace KeyFinder {
         result = oss.str();
         return result.c_str();
     }
+
 }
 
 
@@ -157,6 +159,24 @@ namespace PROJECT_NAME {
         KeyFinder::key_t key = k.keyOfAudio(audio_data);
 
         return key;
+    }
+
+    std::string BuildInfoString(double project_bpm, const char* take_name, KeyFinder::key_t key, double bpm, double time, int float_precision) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(float_precision);
+
+        oss << "Project BPM: " << project_bpm << "\n";
+        oss << "\n========================\n\n";
+
+        oss << "Current take: " << take_name << "\n\n";
+
+        oss << KeyFinder::GetKeyInfo(key) << "\n";
+
+        oss << "\nBPM: " << bpm << "\n";
+        oss << "\n========================\n\n";
+        oss << "Time elapsed(ms): " << time;
+
+        return oss.str();
     }
 
 }
