@@ -7,5 +7,7 @@ namespace PROJECT_NAME {
             std::string StringizeSampleBuffer(double* buf, int size);
             std::string FloatToString(double value, int precision = 6);
             bool isStringNotEmpty(const char* input);
+            std::string wrapLuaBracketString(const std::string& input);
+            std::string unwrapLuaBracketString(const char* input);
         }
 }

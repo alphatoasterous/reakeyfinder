@@ -30,6 +30,8 @@ namespace PROJECT_NAME {
     extern "C" {
         KeyFinder::AudioData PrepareAudioData(double* samples, size_t samples_size, int sample_rate, int channels);
         KeyFinder::key_t GetKeyOfAudio(KeyFinder::AudioData audio_data);
-        std::string BuildInfoString(double project_bpm, const char* take_name, key_t key, double bpm, double time, int float_precision);
+        std::string BuildInfoString(const char* take_name, KeyFinder::key_t key, double bpm, int float_precision);
+        std::string BuildInfoStringWithKeyStringed(
+            const char* take_name, const char* key, const char* key_relative, const char* key_quart, const char* key_quint, double bpm, int float_precision);
     }
 }

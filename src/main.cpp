@@ -15,7 +15,7 @@ extern "C"
         if (rec != nullptr && REAPERAPI_LoadAPI(rec->GetFunc) == 0)
         {
             // check that our plugin hasn't been already loaded
-            if (rec->GetFunc("ReaScriptAPIFunctionExample"))
+            if (rec->GetFunc("ReaKeyfinderRegistered"))
                 return 0;
             PROJECT_NAME::Register();
             return 1;

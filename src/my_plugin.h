@@ -1,6 +1,7 @@
 #pragma once
 
 #include "config.h"
+#define REAKEYFINDER_VERSION PROJECT_VERSION_MAJOR.PROJECT_VERSION_MINOR.PROJECT_VERSION_PATCH
 
 #include <WDL/wdltypes.h> // might be unnecessary in future
 

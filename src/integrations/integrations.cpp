@@ -139,7 +139,6 @@ namespace KeyFinder {
 
 namespace PROJECT_NAME {
 
-    
     KeyFinder::AudioData PrepareAudioData(double* samples, size_t samples_size, int sample_rate, int channels) {
         KeyFinder::AudioData audio_data;
         audio_data.setFrameRate(sample_rate);
@@ -161,22 +160,31 @@ namespace PROJECT_NAME {
         return key;
     }
 
-    std::string BuildInfoString(double project_bpm, const char* take_name, KeyFinder::key_t key, double bpm, double time, int float_precision) {
+    std::string BuildInfoString(const char* take_name, KeyFinder::key_t key, double bpm, int float_precision) {
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(float_precision);
-
-        oss << "Project BPM: " << project_bpm << "\n";
-        oss << "\n========================\n\n";
 
         oss << "Current take: " << take_name << "\n\n";
 
         oss << KeyFinder::GetKeyInfo(key) << "\n";
 
-        oss << "\nBPM: " << bpm << "\n";
-        oss << "\n========================\n\n";
-        oss << "Time elapsed(ms): " << time;
+        oss << "BPM: " << bpm << "\n";
 
         return oss.str();
     }
 
+    std::string BuildInfoStringWithKeyStringed( 
+            const char* take_name, const char* key, const char* key_relative, const char* key_quart, const char* key_quint, double bpm, int float_precision) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(float_precision);
+        oss << "Current take: " << take_name << "\n\n";
+
+        oss << "Key: " << key << "\n";
+        oss << "Relative: " << key_relative << "\n";
+        oss << "Quart: " << key_quart << "\n";
+        oss << "Quint: " << key_quint << "\n";
+        oss << "BPM: " << bpm << "\n";
+
+        return oss.str();
+    }
 }
