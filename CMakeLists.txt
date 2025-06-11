@@ -241,6 +241,12 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "${REAPER_USER_PLUGINS}" # Linux .so/macOS .dylib
 )
 
+set(REAPER_SCRIPTS "Scripts")
+install(
+  DIRECTORY src/scripts/
+  DESTINATION ${REAPER_SCRIPTS}
+)
+
 # Set the component as required
 set(CPACK_COMPONENT_${PROJECT_NAME}_REQUIRED ON)
 if(WIN32)
