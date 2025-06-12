@@ -126,12 +126,23 @@ if(VCPKG_TOOLCHAIN)
   set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
 endif()
 
-add_library(${PROJECT_NAME} SHARED keyfinder)
-add_subdirectory(keyfinder)
+if(WIN32)
+  find_package(KeyFinder CONFIG REQUIRED)
+  if(KeyFinder_FOUND)
+    target_link_libraries(reaper-sdk INTERFACE KeyFinder::keyfinder)
+  endif()
+else()
+  add_subdirectory(keyfinder)
+endif()
+
+add_library(${PROJECT_NAME} SHARED minibpm)
 add_subdirectory(src)
 add_subdirectory(minibpm)
-target_link_libraries(${PROJECT_NAME} PRIVATE reaper-sdk keyfinder minibpm)
+target_link_libraries(${PROJECT_NAME} PRIVATE reaper-sdk minibpm)
 
+
+
+# target_link_libraries(${PROJECT_NAME} PRIVATE reaper-sdk minibpm)
 
 configure_file(
   "${PROJECT_SOURCE_DIR}/config.h.in"
