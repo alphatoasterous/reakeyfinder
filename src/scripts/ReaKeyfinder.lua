@@ -11,6 +11,11 @@ local project_bpm = string.format("%.3f", reaper.Master_GetTempo())
 
 -- Parse JSON
 item = reaper.GetSelectedMediaItem(0,0)
+if not item then
+  reaper.ShowMessageBox("Please select a media item!", "Error", 0)
+  return
+end
+
 take = reaper.GetMediaItemTake(item, 0)
 json_str = ''
 retval, json_str = reaper.GetSetMediaItemTakeInfo_String(take, "P_EXT:reakeyfinder", json_str, false)
