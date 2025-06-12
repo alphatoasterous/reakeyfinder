@@ -2,7 +2,6 @@
 #include "reaper_plugin.h"
 #include "reaper_plugin_functions.h"
 #include "reaper_vararg.hpp"
-
 #include "integrations/integrations.hpp"
 #include "utils/utils.hpp"
 #include "json.hpp"
@@ -11,7 +10,6 @@
 #include <gsl/gsl>
 #include <keyfinder/constants.h>
 #include <MiniBpm.h>
-
 #include <thread>
 
 #define API_ID REAKEYFINDER_API
@@ -37,10 +35,10 @@ namespace PROJECT_NAME
 // the necessary 'evil'
 int command_id{0};
 custom_action_register_t analyze_action = {
-    .uniqueSectionId=0,
-    .idStr=STRINGIZE(PROJECT_NAME) "_COMMAND",
-    .name=STRINGIZE(PROJECT_NAME) ": " "Analyze key/BPM of selected media item",
-    .extra=nullptr};
+    0,
+    STRINGIZE(PROJECT_NAME) "_COMMAND",
+    STRINGIZE(PROJECT_NAME) ": " "Analyze key/BPM of selected media item",
+    nullptr};
 
 enum Commands {
     RKF_ANALYZE,
@@ -130,7 +128,7 @@ void ReaKeyfinder()
         std::string key_quart_string = js["key_quart"];
         std::string key_quint_string = js["key_quint"];
 
-        ShowConsoleMsg(BuildInfoStringWithKeyStringed(
+       ShowConsoleMsg(BuildInfoStringWithKeyStringed(
                                                 GetTakeName(current_take), 
                                                         key_string.c_str(), 
                                                 key_relative_string.c_str(), 
@@ -164,7 +162,7 @@ void ReaKeyfinder()
         KeyFinder::key_t key;
         KeyFinder::CompatibleKeys compatible_keys;
         std::thread key_thread([&]() {
-            key = GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels));
+           key = GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels));
         });
         compatible_keys = GetCompatibleKeys(key);
         
