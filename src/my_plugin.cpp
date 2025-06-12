@@ -167,8 +167,9 @@ void ReaKeyfinder()
         KeyFinder::CompatibleKeys compatible_keys;
         std::thread key_thread([&]() {
            key = GetKeyOfAudio(PrepareAudioData(samples, samples_size, sample_rate, numchannels));
+           compatible_keys = GetCompatibleKeys(key);
         });
-        compatible_keys = GetCompatibleKeys(key);
+        
         
         // Get bpm
         std::thread bpm_thread([&]() {
@@ -178,6 +179,7 @@ void ReaKeyfinder()
         bpm_thread.join();
         key_thread.join();
 
+        
         delete[] samples;
         DestroyAudioAccessor(audio_accessor);
 
