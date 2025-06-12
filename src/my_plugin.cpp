@@ -13,6 +13,8 @@
 #include <thread>
 
 #define API_ID REAKEYFINDER_API
+#define SCRIPT_ID "_RS15ad79b6e0c8e720c9d6353d14bbf0bd77753369"
+#define NOECHO "!SHOW:"
 #define STRINGIZE_DEF(x) #x
 #define STRINGIZE(x) STRINGIZE_DEF(x)
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -34,6 +36,7 @@ namespace PROJECT_NAME
 // some global non-const variables
 // the necessary 'evil'
 int command_id{0};
+int script_id{0};
 custom_action_register_t analyze_action = {
     0,
     STRINGIZE(PROJECT_NAME) "_COMMAND",
@@ -53,14 +56,15 @@ REAPER_PLUGIN_HINSTANCE hInstance{nullptr}; // used for dialogs, if any
 // gets called via callback or timer
 void ReaKeyfinder()
 {
+    
     #if PROJECT_BUILD_TYPE == Debug
     TimePoint seq_start = Clock::now();
     #endif
-
+    
     // Access audio from a current item's take #0. Write it to a sample_buffer.
     MediaItem* current_item = GetSelectedMediaItem(0, 0);
     if (!(IsMediaItemSelected(current_item))) {
-        ShowConsoleMsg("No item selected. Please select an item to analyze!\n");
+        ShowConsoleMsg(NOECHO"No item selected. Please select an item to analyze!\n");
         return;
     }
     MediaItem_Take* current_take = GetMediaItemTake(current_item, 0);
@@ -88,7 +92,7 @@ void ReaKeyfinder()
             } catch (const nlohmann::json::parse_error&) {
                 // Parsing failed
                 json_parse_error = true;
-                ShowConsoleMsg("JSON parsing failed.\n");
+                ShowConsoleMsg(NOECHO"JSON parsing failed.\n");
                 json_correct = false;
             }
         }
@@ -111,11 +115,11 @@ void ReaKeyfinder()
             (js["take_info"]["pitch"] == take_pitch)
             // (js["rkf_ver"] == reakeyfinder_version) can be checked in future, if algorithm changes without changing object's structure
             ) json_correct = true; else {
-                ShowConsoleMsg("Take metadata mismatch. Reanalyzing!\n");
+                ShowConsoleMsg(NOECHO"Take metadata mismatch. Reanalyzing!\n");
                 json_correct = false;
             }
         } else {
-            ShowConsoleMsg("JSON Structure invalid. Reanalyzing!\n");
+            ShowConsoleMsg(NOECHO"JSON Structure invalid. Reanalyzing!\n");
             json_correct = false;
         }
 
@@ -128,14 +132,14 @@ void ReaKeyfinder()
         std::string key_quart_string = js["key_quart"];
         std::string key_quint_string = js["key_quint"];
 
-       ShowConsoleMsg(BuildInfoStringWithKeyStringed(
+       ShowConsoleMsg((NOECHO + BuildInfoStringWithKeyStringed(
                                                 GetTakeName(current_take), 
                                                         key_string.c_str(), 
                                                 key_relative_string.c_str(), 
                                                 key_quart_string.c_str(), 
                                                 key_quint_string.c_str(), 
                                                             bpm, 
-                                                            3).c_str());
+                                                            3)).c_str());
 
     } else {
         AudioAccessor* audio_accessor = CreateTakeAudioAccessor(current_take);
@@ -152,11 +156,11 @@ void ReaKeyfinder()
         if (samples_created == 1){
             // Samples are indeed created.
         } else if (samples_created == 0){
-            ShowConsoleMsg("Could not find any sound. Are you messing with me?\n");
+            ShowConsoleMsg(NOECHO"Could not find any sound. Are you messing with me?\n");
             return;
         } else if (samples_created == -1){
-            ShowConsoleMsg("Sound extraction failed.\n"); return;
-        } else { ShowConsoleMsg("Sound extraction failed *miserably*.\n"); return;}
+            ShowConsoleMsg(NOECHO"Sound extraction failed.\n"); return;
+        } else { ShowConsoleMsg(NOECHO"Sound extraction failed *miserably*.\n"); return;}
 
         // Get key
         KeyFinder::key_t key;
@@ -195,17 +199,17 @@ void ReaKeyfinder()
         };
 
         // Show console output
-        ShowConsoleMsg(BuildInfoString(GetTakeName(current_take), key, bpm, 3).c_str());
+        ShowConsoleMsg((NOECHO +BuildInfoString(GetTakeName(current_take), key, bpm, 3)).c_str());
         
         // Dump JSON in a Media item
         std::string dumped = js.dump();
         #if PROJECT_BUILD_TYPE == Debug
-        ShowConsoleMsg(dumped.c_str());
+        ShowConsoleMsg((NOECHO + dumped).c_str());
         #endif
         char* cstr = new char[dumped.size() + 1];
         std::strcpy(cstr, dumped.c_str());
         if (GetSetMediaItemTakeInfo_String(current_take, "P_EXT:reakeyfinder", cstr, true)) {
-            ShowConsoleMsg("\nAnalyzed data is cached into the item parameters.");
+            ShowConsoleMsg(NOECHO"\nAnalyzed data is cached into the item parameters.");
         }
         delete[] cstr;
     }
@@ -213,10 +217,17 @@ void ReaKeyfinder()
     #if PROJECT_BUILD_TYPE == Debug
     TimePoint seq_end = Clock::now();
     double seq_time = std::chrono::duration<double, std::milli>(seq_end - seq_start).count();
-    ShowConsoleMsg("\nElapsed time (ms): ");
-    ShowConsoleMsg(PROJECT_NAME::FloatToString(seq_time).c_str());
+    ShowConsoleMsg(NOECHO"\nElapsed time (ms): ");
+    ShowConsoleMsg((NOECHO + PROJECT_NAME::FloatToString(seq_time)).c_str());
     #endif
-    ShowConsoleMsg("\n"); // Put a newline in the console for a good fortune.
+
+    script_id = NamedCommandLookup(SCRIPT_ID);
+    if (script_id > 0) {
+        Main_OnCommandEx(script_id,0,0);
+    } else {
+        ShowConsoleMsg("\n\n");
+    }
+
 }
 
 // this gets called when my plugin action is run (e.g. from action list)
